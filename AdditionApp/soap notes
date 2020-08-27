@@ -1,0 +1,39 @@
+DECLARE sp1 NAMESPACE 'http://tempuri.org/calculate_ms'; -- declare target namespace from wsdl file
+SET OutputRoot.XMLNS.ResAdd.(XML.NamespaceDecl)xmlns:cal='http://tempuri.org/calculate_ms';
+SET OutputRoot.XMLNS.ResAdd.sp1:addC=InputRoot.XMLNSC.sp1:ReqAdd.sp1:intA+InputRoot.XMLNSC.sp1:ReqAdd.sp1:intB;
+
+
+
+
+BROKER SCHEMA AdditionApp
+
+
+CREATE COMPUTE MODULE Addition_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE sp1 NAMESPACE 'http://tempuri.org/calculate_ms'; -- declare target namespace from wsdl file
+		SET OutputRoot.XMLNS.ResAdd.(XML.NamespaceDecl)xmlns:cal='http://tempuri.org/calculate_ms';
+		SET OutputRoot.XMLNS.ResAdd.sp1:addC=InputRoot.XMLNSC.sp1:ReqAdd.sp1:intA+InputRoot.XMLNSC.sp1:ReqAdd.sp1:intB;
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;
+
+
+IntegrationServer --name MyServer --work-dir /Users/Ritu.Patel@ibm.com/Desktop/demo --admin-rest-api 7600 --http-port-number 7800 --console-log
